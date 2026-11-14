@@ -51,3 +51,10 @@
 - Paired significance test for Finding 6
 - Non-IID orgs (different populations per org)
 - Membership inference attack on FL updates
+
+## Finding 7: HE private inference with CKKS (src/he_inference.py)
+- Scenario: client encrypts a person's features, server computes the linear score of a trained logistic regression on the ciphertext, client decrypts. The sigmoid is applied client-side after decryption
+- 200 predictions: mean error vs plaintext 4.9e-07 (max 6.8e-07); 9.9 ms per prediction (encrypt + compute + decrypt; one-time key generation excluded); ciphertext 324 KB vs 40 bytes of raw features
+- AUC identical (0.697 plaintext and encrypted) on this 200-person subset; it differs from 0.657 in Finding 5 only because of the small subset (sampling noise)
+- Overhead is mostly fixed per ciphertext (these parameters allow 4096 values per ciphertext; we use 5). Packing many people per ciphertext should amortize it. Not tested
+- Protects features and score from the server. Does not protect the model (server holds it in plaintext) and does not hide query count or timing. Parameters are common example values; security level not audited
