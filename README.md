@@ -61,3 +61,7 @@ NOTES.md is the full research log, with every number and caveat. COMPARISON.md i
 ## Not tested
 
 Non-identical organizations; HE packing many people per ciphertext; effective epsilon of the secure-sum noise under collusion; secure aggregation as a defense against gradient leakage; leakage for larger models; tuning (learning rate, fewer rounds) and intermediate epsilon values for private FL.
+
+## License
+
+MIT. See LICENSE.
