@@ -64,3 +64,10 @@
 - Age band 1 / 5 / 10: unique records 50.9% / 15.6% / 8.1%; re-identified 51.4% / 15.4% / 8.2%; positives exposed with certainty 54.3% / 21.0% / 14.8% (of 81 positives)
 - Min group size stays 1 even with 10-year bands, so these are generalizations, not k-anonymous releases. Utility lost by coarsening age not measured
 - Only 81 positives in the attacker sample, so the exposure figures are rough (14.8% is about 12 people). Exposure above the overall re-identification rate is consistent with homogeneity (all-positive groups), but unique records and homogeneous groups were not separated
+
+## Finding 9: gradient leakage in FL updates (src/gradient_leakage.py)
+- Setup: the attacker (the FL server) sees one plain first-round update computed from a batch of B people, and scores 400 candidates (members plus non-members) by feature alignment (absolute cosine) with the update
+- Batch size 1 / 2 / 5 / 20 / 100: membership AUC 1.000 / 0.882 / 0.698 / 0.580 / 0.526; top-1 hit rate 100% / 11.5% / 6.5% / 9.0% / 26.5% (chance 0.2% / 0.5% / 1.2% / 5.0% / 25.0%)
+- Batch of 1: the update is proportional to that person's features, so they are recovered exactly. At batch 100 the attack is close to chance. At batch 2 AUC is high but the top-1 hit rate is only 11.5%: the leak shows someone from a small group is present more than it identifies one person
+- Caveats: best case for the attacker (fresh model, plain unprotected updates, one round); only 6 features, larger models probably leak more but this was not tested; 200 trials per batch size. The regime where FL helped most in Finding 6 (small orgs) is also where this attack works best
+- Not tested: clipping plus noise, or secure aggregation, as defenses
