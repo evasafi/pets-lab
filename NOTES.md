@@ -58,3 +58,9 @@
 - AUC identical (0.697 plaintext and encrypted) on this 200-person subset; it differs from 0.657 in Finding 5 only because of the small subset (sampling noise)
 - Overhead is mostly fixed per ciphertext (these parameters allow 4096 values per ciphertext; we use 5). Packing many people per ciphertext should amortize it. Not tested
 - Protects features and score from the server. Does not protect the model (server holds it in plaintext) and does not hide query count or timing. Parameters are common example values; security level not audited
+
+## Finding 8: fairer attack metric and age generalization (src/linkage_attack_v2.py)
+- Metric: share of true positives (medical_need) for whom every matching released record is also positive, i.e. the attacker is certain. Replaces the base-rate-inflated figure in Finding 1
+- Age band 1 / 5 / 10: unique records 50.9% / 15.6% / 8.1%; re-identified 51.4% / 15.4% / 8.2%; positives exposed with certainty 54.3% / 21.0% / 14.8% (of 81 positives)
+- Min group size stays 1 even with 10-year bands, so these are generalizations, not k-anonymous releases. Utility lost by coarsening age not measured
+- Only 81 positives in the attacker sample, so the exposure figures are rough (14.8% is about 12 people). Exposure above the overall re-identification rate is consistent with homogeneity (all-positive groups), but unique records and homogeneous groups were not separated
