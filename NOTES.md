@@ -71,3 +71,10 @@
 - Batch of 1: the update is proportional to that person's features, so they are recovered exactly. At batch 100 the attack is close to chance. At batch 2 AUC is high but the top-1 hit rate is only 11.5%: the leak shows someone from a small group is present more than it identifies one person
 - Caveats: best case for the attacker (fresh model, plain unprotected updates, one round); only 6 features, larger models probably leak more but this was not tested; 200 trials per batch size. The regime where FL helped most in Finding 6 (small orgs) is also where this attack works best
 - Not tested: clipping plus noise, or secure aggregation, as defenses
+
+## Finding 10: clipping + Gaussian noise on FL updates (src/dp_defense.py)
+- Defense: per-person gradient clipping (C = 1) and Gaussian noise (sigma * C on the sum), as in DP-SGD, applied to each org's update. Reports sigma, not epsilon (no accountant used)
+- Single-update attack (membership AUC) at sigma 0 / 0.5 / 1 / 2 / 4: batch 1: 1.000 / 0.825 / 0.644 / 0.554 / 0.555; batch 5: 0.701 / 0.671 / 0.606 / 0.553 / 0.505; batch 20: 0.589 / 0.582 / 0.578 / 0.546 / 0.526
+- FL test AUC with 20 rows per org (20 draws) stayed 0.608 to 0.614 at every sigma; std over draws 0.031 rising to 0.037 at sigma 4. No clear utility cost here, but the model is tiny, the signal weak, and AUC is a ranking metric that tolerates noisy weights
+- Batch-1 AUC is a noisy estimate (150 trials, standard error about 0.02), so 0.554 and 0.555 are near chance
+- Main limitation: this tests one released update. Over many rounds the noise is fresh while the org's data is fixed, so a server averaging rounds could shrink the noise and recover the signal. Not tested; this is why DP accounting composes privacy loss across rounds
