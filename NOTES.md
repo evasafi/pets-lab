@@ -94,3 +94,11 @@
 - Reading: sigma 4 looks safe per round (epsilon about 1) but costs about 21 to 22 over 200 rounds, consistent with the multi-round attack in Finding 11 (AUC 0.797 at batch 1). Epsilon around 1 over 200 rounds needs sigma around 57, as estimated in Finding 11. Epsilon depends only on R / sigma^2
 - Epsilon does not depend on batch size (dividing by B is post-processing), while the empirical attack AUC does: epsilon is a worst-case guarantee, the attack measures one attacker on one dataset
 - Caveats: feature scaling used pooled training statistics computed without noise, outside this accounting, so the guarantee does not strictly cover the full pipeline. The per-org guarantee assumes the server sees all rounds. Utility cost of sigma around 57 not tested
+
+## Finding 13: utility of DP-FL at different noise levels (src/dp_utility.py)
+- Mean test AUC (std over 20 draws), 200 rounds, learning rate 0.5, no tuning. Columns: local-only non-private / DP-FL sigma 0 (clipping only, no guarantee) / sigma 4 (epsilon about 21 to 22 over 200 rounds) / sigma 56.6 (epsilon about 1)
+- 20 rows per org: 0.556 (0.034) / 0.588 (0.042) / 0.585 (0.066) / 0.495 (0.073)
+- 150 rows per org: 0.626 (0.015) / 0.648 (0.006) / 0.648 (0.006) / 0.589 (0.041)
+- 500 rows per org: 0.649 (0.004) / 0.655 (0.004) / 0.654 (0.004) / 0.644 (0.012)
+- Reading: at epsilon about 1, DP-FL did not beat local-only training at any tested size: chance level at 20 rows, below local-only at 150, about equal at 500 where local-only is already near the ceiling and collaboration adds little. At sigma 4 there is no visible cost but the guarantee is weak. Where FL helps most (small orgs) is where private FL costs the most
+- Caveats: fixed learning rate and rounds; fewer rounds would permit less noise per round at the same epsilon, and intermediate epsilon values were not tested; tiny model, weak signal; 20 draws, so differences of about 0.01 are not meaningful
