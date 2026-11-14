@@ -78,3 +78,11 @@
 - FL test AUC with 20 rows per org (20 draws) stayed 0.608 to 0.614 at every sigma; std over draws 0.031 rising to 0.037 at sigma 4. No clear utility cost here, but the model is tiny, the signal weak, and AUC is a ranking metric that tolerates noisy weights
 - Batch-1 AUC is a noisy estimate (150 trials, standard error about 0.02), so 0.554 and 0.555 are near chance
 - Main limitation: this tests one released update. Over many rounds the noise is fresh while the org's data is fixed, so a server averaging rounds could shrink the noise and recover the signal. Not tested; this is why DP accounting composes privacy loss across rounds
+
+## Finding 11: multi-round averaging attack (src/multiround_attack.py)
+- The attacker averages the first R noisy updates from a fixed batch. The global model follows a fixed non-private trajectory (an idealization), the attacker is simple (so results are a lower bound on risk), 150 trials per cell
+- Batch 1, sigma 1: AUC 0.622 / 0.895 / 0.941 / 0.982 at R = 1 / 10 / 50 / 200. Sigma 4: 0.558 / 0.603 / 0.643 / 0.797
+- Batch 5: sigma 1 0.610 / 0.678 / 0.675 / 0.660; sigma 4 0.505 / 0.583 / 0.602 / 0.642. Batch 20: sigma 1 0.569 / 0.575 / 0.558 / 0.547; sigma 4 0.530 / 0.564 / 0.557 / 0.550
+- Reading: a sigma that looks safe on a single update (near chance at sigma 2 to 4 in Finding 10) is not safe over a training run at batch 1. For larger batches the curves flatten near the no-noise ceiling of this attack (about 0.70 at batch 5 and 0.59 at batch 20 in Finding 9, measured at a different model state, so only roughly comparable). Interpretation, not tested directly: noise controls how fast the attack reaches the ceiling, batch size controls the ceiling
+- Small dips (e.g. batch 5, sigma 1: 0.678 to 0.660) are within noise or reflect later rounds adding less coherent signal; not investigated
+- Back-of-envelope, not tested: if effective noise scales as sigma / sqrt(R), holding the 200-round view at the level of one sigma-4 update needs sigma on the order of 50 per round, likely with a large utility cost at small batch sizes
