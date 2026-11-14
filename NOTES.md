@@ -35,3 +35,19 @@
 ## Open questions (added)
 - Effective epsilon of the secure-sum noise under k colluding parties
 - Replace the "medical status exposed" metric in Finding 1
+
+## Finding 5: FedAvg vs centralized vs local-only, full-size orgs (src/federated.py)
+- Test AUC: centralized 0.657, FedAvg 0.657, local-only 0.652 to 0.658. No meaningful difference
+- Reason: orgs are large (680 to 1704 training rows) and near-identical in distribution (district does not affect medical_need in the generator); the data signal is weak (ceiling about 0.66). This is a null result: FL does not hurt, but nothing here shows it helps
+- Shortcut: feature scaling was computed on pooled training data, which real orgs could not do without sharing statistics
+
+## Finding 6: when does FL help? (src/federated_small.py)
+- Mean test AUC over 20 random draws per size, local-only vs FedAvg: 20 rows/org 0.562 vs 0.602; 50 rows 0.585 vs 0.622; 150 rows 0.624 vs 0.647; 500 rows 0.651 vs 0.657
+- The gap shrinks as data grows (0.040, 0.037, 0.023, 0.006). At 20 to 50 rows the gap is about one std across draws, so individual runs overlap. No paired significance test was run
+- Caveats: orgs are near-IID (favorable to FL); fixed test set; FedAvg effectively draws on 3x the data, which is the point of collaboration. Local-only and FedAvg use the same training code and total step count
+- FL alone is not a privacy guarantee: weight updates can leak (gradient inversion, membership inference). Not tested here. Proper protection is secure aggregation plus noise, as in Finding 4
+
+## Open questions (added)
+- Paired significance test for Finding 6
+- Non-IID orgs (different populations per org)
+- Membership inference attack on FL updates
