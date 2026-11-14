@@ -9,7 +9,7 @@ All numbers come from the scripts in src/ on 5,000 synthetic recipients. "Not me
 | Differential privacy (Laplace counts) | Individuals, from anyone who sees the released statistics | Data during computation (a curator sees raw data); org-level totals | Noise scale 1/eps regardless of group size. Relative error about 1/(eps * count): D01 (count 5) 206% at eps 0.1 and 19% at eps 1; D03 (167) 6% at eps 0.1 |
 | Secret sharing (secure sum) | Each org's input, from the other orgs, during computation | The output: if B and C collude, 875 - 402 - 178 = 295 recovers A exactly | Correct total (875). Runtime and communication not measured |
 | Secure sum + distributed noise | Both of the above, without a trusted noise-adder | Weaker under collusion: with 2 of 3 colluding, error on A's count is 0.46 vs 0.98 on the total | Effective epsilon under collusion not computed. Simplified fixed-point model |
-| Federated learning (FedAvg) | Raw rows stay at each org | Weight updates can leak (not tested here) | No gain at 500+ rows/org; AUC gain over local-only of 0.040 / 0.037 / 0.023 / 0.006 at 20 / 50 / 150 / 500 rows. Orgs near-identical, so favorable to FL |
+| Federated learning (FedAvg) | Raw rows stay at each org | Weight updates leak: a server seeing one org's update recovers a single record exactly (membership AUC 1.000 at batch 1), fading to 0.526 at batch 100 | No gain at 500+ rows/org; AUC gain over local-only of 0.040 / 0.037 / 0.023 / 0.006 at 20 / 50 / 150 / 500 rows. Orgs near-identical, so favorable to FL |
 | Homomorphic encryption (CKKS inference) | A person's features and score, from the computing server | The model (server holds it in plaintext); query count and timing | Error 5e-07; 9.9 ms per prediction; 324 KB ciphertext vs 40 bytes raw. Parameters not audited |
 
 ## How they combine
@@ -17,7 +17,7 @@ All numbers come from the scripts in src/ on 5,000 synthetic recipients. "Not me
 - No single technique above is enough alone: secret sharing leaks through its output, FL leaks through updates, HE says nothing about what the result reveals, DP needs a trusted party unless combined with the others
 
 ## Not tested yet
-- Membership inference / gradient attacks on FL updates
+- Defenses against gradient leakage (clipping plus noise, secure aggregation); leakage for larger models
 - Paired significance test for the FL results
 - Non-IID organizations
 - HE packing (many people per ciphertext)
