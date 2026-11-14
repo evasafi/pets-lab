@@ -19,3 +19,19 @@
 ## Open questions
 - How should small groups be handled (merge, suppress, or accept the error)?
 - Which single threat model do we use to compare all PETs?
+
+## Finding 3: Additive secret sharing (src/secret_sharing.py)
+- Three orgs (D01-D04, D05-D08, D09-D12) computed the global medical-need count (875) without revealing local counts (295, 402, 178). Shares of the same value differ on every run
+- Limit: the output itself leaks. If B and C collude, 875 - 402 - 178 = 295 recovers A exactly. Secret sharing protects the computation, not what the result reveals
+
+## Finding 4: Secure sum + distributed Laplace noise (src/secure_dp_sum.py)
+- Noise split into differences of Gamma(1/n) pieces, one per org; the pieces sum to one Laplace(1/eps) draw
+- Measured mean abs error on the total at eps = 1: 0.98 (theory: 1.0)
+- With B and C colluding, mean abs error on A's count is 0.46: they subtract their own pieces, leaving only A's piece. Roughly half the noise protects A. The piece is not Laplace, so the effective epsilon was not computed
+- Mitigation (not implemented): size each piece for worst-case collusion, at a cost in accuracy
+- DP protects individuals, not org-level totals: A's total is known to about +-1
+- Caveats: numpy RNG is not cryptographically secure; fixed-point encoding of float noise; real systems use discrete noise and secure randomness (e.g. OpenDP). Semi-honest model: parties follow the protocol
+
+## Open questions (added)
+- Effective epsilon of the secure-sum noise under k colluding parties
+- Replace the "medical status exposed" metric in Finding 1
