@@ -11,14 +11,14 @@ All numbers come from the scripts in src/ on 5,000 synthetic recipients. "Not me
 | Secure sum + distributed noise | Both of the above, without a trusted noise-adder | Weaker under collusion: with 2 of 3 colluding, error on A's count is 0.46 vs 0.98 on the total | Effective epsilon under collusion not computed. Simplified fixed-point model |
 | Federated learning (FedAvg) | Raw rows stay at each org | Weight updates leak: a server seeing one org's update recovers a single record exactly (membership AUC 1.000 at batch 1), fading to 0.526 at batch 100 | No gain at 500+ rows/org; AUC gain over local-only of 0.040 / 0.037 / 0.023 / 0.006 at 20 / 50 / 150 / 500 rows. Orgs near-identical, so favorable to FL |
 | Homomorphic encryption (CKKS inference) | A person's features and score, from the computing server | The model (server holds it in plaintext); query count and timing | Error 5e-07; 9.9 ms per prediction; 324 KB ciphertext vs 40 bytes raw. Parameters not audited |
-| Clipping + Gaussian noise on FL updates (DP-SGD style) | Individuals in a batch, from the server seeing the updates | Cumulative leakage over rounds: averaging 200 rounds restores the attack at batch 1 (AUC 0.982 at sigma 1, 0.797 at sigma 4). No epsilon computed | Single-update attack AUC at batch 1: 1.000 (sigma 0) to 0.825 / 0.644 / 0.554 / 0.555 (sigma 0.5 / 1 / 2 / 4); batch 5: 0.701 to 0.505; batch 20: 0.589 to 0.526. FL test AUC with 20 rows/org stayed 0.608 to 0.614 (std over draws about 0.03) |
+| Clipping + Gaussian noise on FL updates (DP-SGD style) | Individuals in a batch, from the server seeing the updates | Cumulative leakage over rounds: averaging 200 rounds restores the attack at batch 1 (AUC 0.982 at sigma 1, 0.797 at sigma 4). Epsilon at delta 1e-5 (add/remove adjacency, no subsampling): sigma 4 costs 1.01 for one round but 22.02 over 200 rounds (PLD: 0.93 and 20.68); sigma 56.6 gives 1.01 over 200 rounds | Single-update attack AUC at batch 1: 1.000 (sigma 0) to 0.825 / 0.644 / 0.554 / 0.555 (sigma 0.5 / 1 / 2 / 4); batch 5: 0.701 to 0.505; batch 20: 0.589 to 0.526. FL test AUC with 20 rows/org stayed 0.608 to 0.614 (std over draws about 0.03) |
 
 ## How they combine
 - DP protects outputs; secret sharing, FL and HE protect the process. They address different threats, so real systems stack them (for example FL + secure aggregation + DP noise)
 - No single technique above is enough alone: secret sharing leaks through its output, FL leaks through updates, HE says nothing about what the result reveals, DP needs a trusted party unless combined with the others
 
 ## Not tested yet
-- Secure aggregation as a defense against gradient leakage; leakage for larger models; formal epsilon accounting; the noise level needed to hold up over a full run, and its utility cost
+- Secure aggregation as a defense against gradient leakage; leakage for larger models; utility cost of the noise level needed for epsilon around 1 over 200 rounds (sigma about 57)
 - Paired significance test for the FL results
 - Non-IID organizations
 - HE packing (many people per ciphertext)
