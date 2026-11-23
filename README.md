@@ -2,6 +2,8 @@
 
 A small learning lab on privacy-enhancing technologies (PETs). One synthetic problem, several techniques, each tested against an attack, with the costs and the caveats written down. This is a learning project, not a library and not a security audit.
 
+> All experiments use one synthetic dataset (5,000 simulated aid recipients, single data seed) and are small-scale. The results illustrate trade-offs and are not findings about real data.
+
 ## The problem
 
 5,000 synthetic aid recipients (age, sex, district, household size, displacement, income, and a sensitive attribute, medical_need). Three organizations each hold the records of four districts. They want aggregate statistics and a shared model without exposing individuals. Districts have deliberately uneven sizes (35 to 979 people), because small groups are where privacy techniques cost the most.
@@ -33,6 +35,15 @@ Python 3.12 is used because TenSEAL (homomorphic encryption) had a prebuilt whee
     python src\dp_utility.py            # accuracy cost of private FL
 
 NOTES.md is the full research log, with every number and caveat. COMPARISON.md is the summary table.
+
+## Tests
+
+A small test suite covers the additive secret-sharing function (`share`), checking that shares sum to the original value modulo the prime, that the share count is correct, and that shares are random.
+
+```powershell
+pip install pytest
+python -m pytest tests -v
+```
 
 ## Results in brief
 
